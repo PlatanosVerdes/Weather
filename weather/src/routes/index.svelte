@@ -1,43 +1,71 @@
 <script>
 	import { getWeatherFrom } from './services/weather.js';
-	const weatherPromise = getWeatherFrom();
+	import WeatherHeader from './components/weather-hearder.svelte';
+	import WeatherMap from './components/weather-map.svelte';
+	import WeatherFooter from './components/weather-footer.svelte';
+	import WeatherIcon from './components/weather-icon.svelte';
+	let crdLatitude;
+	let crdLongitude;
+
+	if (typeof window !== 'undefined') {
+		const options = {
+			enableHighAccuracy: true,
+			timeout: 5000,
+			maximumAge: 0
+		};
+
+		function success(pos) {
+			const crd = pos.coords;
+
+			console.log('Your current position is:');
+			console.log(`Latitude : ${crd.latitude}`);
+			console.log(`Longitude: ${crd.longitude}`);
+			console.log(`More or less ${crd.accuracy} meters.`);
+
+			crdLatitude = crd.latitude;
+			crdLongitude = crd.longitude;
+		}
+
+		function error(err) {
+			console.warn(`ERROR(${err.code}): ${err.message}`);
+		}
+
+		navigator.geolocation.getCurrentPosition(success, error, options);
+	}
 </script>
 
-{#await weatherPromise then weather}
-	<!-- {console.log(weather)} -->
+{#await getWeatherFrom(`${crdLatitude}, ${crdLongitude}`) then weather}
 	<section>
-		<h1>{weather.locationName}</h1>
-		<h2>{weather.temperature}°</h2>
-		<h3>{weather.conditionText}</h3>
-		<h4>{weather.windSpeed}</h4>
+		<WeatherHeader {weather} />
+		<h1>{weather.temperature}°</h1>
+		<WeatherIcon conditionIcon={weather.conditionIcon} conditionText={weather.conditionText} />
+		<h2>{weather.conditionText}</h2>
 	</section>
+	<WeatherFooter {weather} />
 {/await}
 
 <style>
-	
+	section {
+		padding: 16px;
+	}
+
 	h1 {
-		/* font-size: 2em;
-		font-weight: bold;
-		text-align: center; */
 		font-weight: 300;
+		font-size: 120px;
 		color: #333;
 		text-transform: uppercase;
-		padding: 32px 0 16px 16px;
+		padding: 0px;
 	}
 
 	h2 {
-		font-weight: 300;
-		font-size: 64px;
+		/* font-weight: 300;
+		font-size: 12px;
 		color: #333;
 		text-transform: uppercase;
-		padding: 32px 0 0px 0px;
-	}
-
-	h3 {
-		font-weight: 400;
-		transform: rotate(-90deg);
-		position: absolute;
-		top: 12px;
-		right: 12px;
+		padding-top: 5px; */
+		font-weight: 500;
+		font-size: 24px;
+		color: #333;
+		padding: 0px;
 	}
 </style>
