@@ -1,9 +1,10 @@
 <script>
-	import { getWeatherFrom } from './services/weather.js';
-	import WeatherHeader from './components/weather-hearder.svelte';
-	import WeatherMap from './components/weather-map.svelte';
-	import WeatherFooter from './components/weather-footer.svelte';
-	import WeatherIcon from './components/weather-icon.svelte';
+	import { getWeatherFrom } from '../services/weather.js';
+	import WeatherHeader from '../components/weather-hearder.svelte';
+	import WeatherMap from '../components/weather-map.svelte';
+	import WeatherFooter from '../components/weather-footer.svelte';
+	import WeatherIcon from '../components/weather-icon.svelte';
+	import Geolocation from "svelte-geolocation";
 	let crdLatitude;
 	let crdLongitude;
 
@@ -32,9 +33,14 @@
 
 		navigator.geolocation.getCurrentPosition(success, error, options);
 	}
+
+	let coords = [];
+	
 </script>
 
-{#await getWeatherFrom(`${crdLatitude}, ${crdLongitude}`) then weather}
+<Geolocation getPosition bind:coords /> 
+
+{#await getWeatherFrom(`${coords[1]}, ${coords[0]}`) then weather}
 	<section>
 		<WeatherHeader {weather} />
 		<h1>{weather.temperature}°</h1>
